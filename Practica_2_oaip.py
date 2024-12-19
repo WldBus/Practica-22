@@ -51,3 +51,19 @@ def auth():
             print("Авторизация прошла успешно")
             return (user)
     return None
+
+def product_print(elements):
+    for element in elements:
+        for key, value in element.items():
+            print(f"{key}: {value}", end=" ")
+            if key == 'clarity':
+                print()
+
+def print_product(elements):
+    for i, element in enumerate(elements):
+        print(f"\nТовар {i+1}:")
+        for key, value in element.items():
+            print(f" {key}: {value}")
+
+def view_products():
+    print(*list(map(lambda product: f"\n Товар: {product['product_name']} ({product['country']}), Цена: {product['price']} рублей, Доступно сейчас: {product['clarity']}", products)))
