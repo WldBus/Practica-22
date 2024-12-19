@@ -17,3 +17,37 @@ products = [
 ]
 
 cart = {}
+
+def register():
+    while True:
+        login = input("\nВведите логин (не менее 6 символов, не более 25): ")
+        if 6 <= len(login) <= 25:
+            print("Логин введён.")
+            break
+        else:
+            print("Длина логина должна быть от 6 до 25 символов.")
+    while True:
+        password = input("\nВведите пароль (не менее 8 символов, не более 25): ")
+        if 8 <= len(password) <= 25:
+            print("Пароль введён.")
+            break
+        else:
+            print("Длина пароля должна быть от 8 до 25 символов.")
+    users.append(
+        {
+            "login": login,
+            "password": password, # Хеширование пароля
+            "role": "user",
+            "purchases": [],
+        }
+    )
+
+
+def auth():
+    login = input("Введите логин: ")
+    password = input("Введите пароль: ")
+    for user in users:
+        if user["login"] == login and user["password"] == password:
+            print("Авторизация прошла успешно")
+            return (user)
+    return None
