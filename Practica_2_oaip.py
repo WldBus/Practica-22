@@ -82,6 +82,13 @@ def print_product(products):
         for key, value in product.items():
             print(f"  {key}: {value}")
 
+def pretty_print(elements):
+    for element in elements:
+        for key, value in element.items():
+            print(f"{key}: {value}", end=" ")
+            if key == 'price':
+                print()
+
 # Меню пользоваетеля
 def user_menu(user):
     while True:
@@ -91,7 +98,8 @@ def user_menu(user):
         print("3. Просмотреть корзину")
         print("4. Оформить покупку")
         print("5. Просмотреть историю покупок")
-        print("6. Выход")
+        print("6. Отсортирвоать товары по цене")
+        print("7. Выход")
 
         choice = input("Выберите действие: ")
 
@@ -124,6 +132,8 @@ def user_menu(user):
             elif choice == '5':
                 print_product(user["purchases"])
             elif choice == '6':
+                pretty_print(elements = sorted(products, key=lambda product: product["price"], reverse=True))
+            elif choice == '7':
                 break
             else:
                 print("Неверный выбор.")
