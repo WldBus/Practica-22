@@ -1,6 +1,13 @@
 users = [
-    {"login": "user", "password": "user", "role": "user", "cart": [], "purchases": []},
-    {"login": "HochuPelmeni227", "password": "YaAdmin120", "role": "admin"},
+    {"login": "user", 
+     "password": "user", 
+     "role": "user", 
+     "cart": [], 
+     "purchases": []},
+
+    {"login": "AdminDel", 
+     "password": "chepuh", 
+     "role": "admin"},
 ]
 
 products = [
@@ -16,31 +23,45 @@ products = [
     {'product_name': 'Веер', 'country': 'Япония', 'rating': 4.2, 'price': 59.9, 'clarity': 7},
 ]
 
-cart = {}
+# try:
+#     with open('users.json', 'r') as file:
+#         users = json.load(file)
+#     with open('products.json', 'r') as file:
+#         products = json.load(file)
+# except FileNotFoundError:
+#     print("Файлы с данными не найдены. Будут созданы новые.")
+
+
+# def save_data():
+#     with open('users.json', 'w', encoding='utf-8') as file:
+#         json.dump(users, file, ensure_ascii=False, indent=4)
+#     with open('products.json', 'w', encoding='utf-8') as file:
+#         json.dump(products, file, ensure_ascii=False, indent=4)
 
 def register():
     while True:
         login = input("\nВведите логин (не менее 6 символов, не более 25): ")
         if 6 <= len(login) <= 25:
-            print("Логин введён.")
             break
         else:
             print("Длина логина должна быть от 6 до 25 символов.")
     while True:
         password = input("\nВведите пароль (не менее 8 символов, не более 25): ")
         if 8 <= len(password) <= 25:
-            print("Пароль введён.")
             break
         else:
             print("Длина пароля должна быть от 8 до 25 символов.")
     users.append(
         {
             "login": login,
-            "password": password, # Хеширование пароля
+            "password": password,
             "role": "user",
+            "cart": [],
             "purchases": [],
         }
     )
+    # save_data()
+    print("Регистрация прошла успешно!")
 
 
 def auth():
@@ -49,21 +70,191 @@ def auth():
     for user in users:
         if user["login"] == login and user["password"] == password:
             print("Авторизация прошла успешно")
-            return (user)
+            return user
     return None
 
-def product_print(elements):
-    for element in elements:
-        for key, value in element.items():
-            print(f"{key}: {value}", end=" ")
-            if key == 'clarity':
-                print()
-
-def print_product(elements):
-    for i, element in enumerate(elements):
+def print_product(products):
+    if not products:
+        print("Список пуст.")
+        return
+    for i, product in enumerate(products):
         print(f"\nТовар {i+1}:")
-        for key, value in element.items():
-            print(f" {key}: {value}")
+        for key, value in product.items():
+            print(f"  {key}: {value}")
 
-def view_products():
-    print(*list(map(lambda product: f"\n Товар: {product['product_name']} ({product['country']}), Цена: {product['price']} рублей, Доступно сейчас: {product['clarity']}", products)))
+# Меню пользоваетеля
+def user_menu(user):
+    while True:
+        print("\nМеню пользователя:")
+        print("1. Просмотреть товары")
+        print("2. Добавить товар в корзину")
+        print("3. Просмотреть корзину")
+        print("4. Оформить покупку")
+        print("5. Просмотреть историю покупок")
+        print("6. Выход")
+
+        choice = input("Выберите действие: ")
+
+        try:
+            if choice == '1':            
+                print(*list(map(lambda product: f"\n Товар: {product["product_name"]} ({product["country"]}), Цена: {product["price"]} рублей, Доступно сейчас: {product["clarity"]}", products)))
+            elif choice == '2':
+                print_product(products)
+                product_index = int(input("Введите номер товара: ")) - 1
+                if 0 <= product_index < len(products):
+                    user["cart"].append(products[product_index])
+                    print("Товар добавлен в корзину.")
+                else:
+                    print("Неверный номер товара.")
+            elif choice == '3':
+                print_product(user["cart"])
+            elif choice == '4':
+                if user["cart"]:
+                    print_product(user["cart"])
+                    confirm = input("Подтвердить покупку? (y/n): ")
+                    if confirm.lower() == 'y':
+                        user["purchases"].extend(user["cart"])
+                        user["cart"] = []
+                        # save_data()
+                        print("Покупка оформлена.")
+                    else:
+                        print("Покупка отменена.")
+                else:
+                    print("Корзина пуста.")
+            elif choice == '5':
+                print_product(user["purchases"])
+            elif choice == '6':
+                break
+            else:
+                print("Неверный выбор.")
+        except ValueError:
+            print("Некорректный ввод.")
+        except Exception as e:
+            print(f"Произошла ошибка: {e}")
+
+
+def add_product():
+    new_product = {}
+    new_product["product_name"] = input("Введите название товара: ")
+    new_product["country"] = input("Введите страну производителя: ")
+    while True:
+        try:
+            new_product["price"] = float(input("Введите цену: "))
+            break
+        except ValueError:
+            print("Неверный формат цены.")
+    while True:
+        try:
+            new_product["clarity"] = int(input("Введите количество: "))
+            break
+        except ValueError:
+            print("Неверный формат количества.")
+    while True:
+        try:
+            new_product["rating"] = float(input("Введите рейтинг (0-5): "))
+            if 0 <= new_product["rating"] <= 5:
+                break
+            else:
+                print("Рейтинг должен быть от 0 до 5.")
+        except ValueError:
+            print("Неверный формат рейтинга.")
+
+    products.append(new_product)
+    # save_data()
+    print("Товар добавлен.")
+
+def delete_product():
+    print_product(products)
+    try:
+        product_index = int(input("Введите номер товара для удаления: ")) - 1
+        if 0 <= product_index < len(products):
+            del products[product_index]
+            # save_data()
+            print("Товар удален.")
+        else:
+            print("Неверный номер товара.")
+    except ValueError:
+        print("Некорректный ввод.")
+    except Exception as e:
+        print(f"Произошла ошибка: {e}")
+
+def change_product():
+    print_product(products)
+    try:
+        product_index = int(input("Введите номер товара для изменения: ")) - 1
+        if 0 <= product_index < len(products):
+            product = products[product_index]
+            for key in product:
+                new_value = input(f"Введите новое значение для {key} (или Enter для пропуска): ")
+                if new_value:
+                    try:
+                        if key in ["price", "rating"]:
+                            new_value = float(new_value)
+                        elif key == "clarity":
+                            new_value = int(new_value)
+                        product[key] = new_value
+                    except ValueError:
+                        print("Неверный формат данных.")
+                        return
+            # save_data()
+            print("Товар изменён.")
+        else:
+            print("Неверный номер товара.")
+    except ValueError:
+        print("Некорректный ввод.")
+    except Exception as e:
+        print(f"Произошла ошибка: {e}")
+
+
+def admin_menu():
+    while True:
+        print("\nМеню администратора:")
+        print("1. Добавить товар")
+        print("2. Удалить товар")
+        print("3. Изменить товар")
+        print("4. Просмотреть товары")
+        print("5. Выйти")
+
+        choice = input("Выберите действие: ")
+
+        try:
+            if choice == '1':
+                add_product()
+            elif choice == '2':
+                delete_product()
+            elif choice == '3':
+                change_product()
+            elif choice == '4':
+                print_product(products)
+            elif choice == '5':
+                break
+            else:
+                print("Неверный выбор.")
+        except Exception as e:
+            print(f"Произошла ошибка: {e}")
+
+def main():
+    while True:
+        print("\nМеню:")
+        print("1. Авторизация")
+        print("2. Регистрация")
+        print("3. Выход")
+
+        choice = input("Выберите действие: ")
+
+        if choice == '1':
+            user_auth = auth()
+            if user_auth:
+                if user_auth["role"] == "user":
+                    user_menu(user_auth)
+                elif user_auth["role"] == "admin":
+                    admin_menu()
+        elif choice == '2':
+            register()
+        elif choice == '3':
+            break
+        else:
+            print("Неверный выбор.")
+
+if __name__ == "__main__":
+    main()
